@@ -1,3 +1,8 @@
+---
+title: News
+layout: posts
+---
+
 # News
 
 - 15 July 2025 — [Release 25.07 Highlights](https://helix-editor.com/news/release-25-07-highlights/) — Highlights of the 25.07 release.

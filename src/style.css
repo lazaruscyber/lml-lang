@@ -406,3 +406,21 @@ section.content {
 h2.subtitle {
   font-weight: 400;
 }
+
+.page-body {
+  padding-bottom: 2rem;
+}
+
+.page-body h1 {
+  margin-top: 0;
+}
+
+.page-body ul,
+.page-body ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.4rem;
+}
+
+.page-body p {
+  margin: 0 0 1rem;
+}

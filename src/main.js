@@ -150,8 +150,8 @@ function homeHtml(site) {
   `;
 }
 
-function newsHtml(site) {
-  const items = site.newsItems
+function postsHtml(site, page) {
+  const items = page.items
     .map(
       (item) => `
         <li class="post">
@@ -175,7 +175,7 @@ function newsHtml(site) {
     <div class="page">
     ${navHtml(site)}
     <article>
-      <h1>${site.newsTitle}</h1>
+      <h1>${page.title}</h1>
       <hr/>
       <ul class="posts flat">
         ${items}
@@ -186,9 +186,40 @@ function newsHtml(site) {
   `;
 }
 
-function applyMeta(site) {
-  const isNews = location.pathname.endsWith("/news") || location.pathname.endsWith("/news.html");
-  document.title = isNews ? `News | ${site.meta.title || site.brand}` : site.meta.title || site.brand;
+function articleHtml(site, page) {
+  return `
+    <div class="page">
+    ${navHtml(site)}
+    <article class="page-body">
+      ${page.html}
+    </article>
+    </div>
+    ${footerHtml(site)}
+  `;
+}
+
+function missingHtml(site, slug) {
+  return `
+    <div class="page">
+    ${navHtml(site)}
+    <article class="page-body">
+      <h1>Page not found</h1>
+      <p>Create <code>content/pages/${slug}.md</code> and add a navbar link in <code>content/nav.md</code>.</p>
+    </article>
+    </div>
+    ${footerHtml(site)}
+  `;
+}
+
+function currentSlug() {
+  const path = location.pathname.replace(/\.html$/, "").replace(/\/+$/, "");
+  if (!path || path === "/") return "";
+  return path.replace(/^\//, "");
+}
+
+function applyMeta(site, page) {
+  const base = site.meta.title || site.brand || "LightML";
+  document.title = page ? `${page.title} | ${base}` : base;
   const desc = document.querySelector('meta[name="description"]');
   if (desc && site.meta.description) desc.setAttribute("content", site.meta.description);
   const theme = document.querySelector('meta[name="theme-color"]');
@@ -197,11 +228,50 @@ function applyMeta(site) {
 
 function render() {
   const site = loadSite();
-  applyMeta(site);
   const root = document.getElementById("app");
-  const isNews = location.pathname.endsWith("/news") || location.pathname.endsWith("/news.html");
-  root.innerHTML = isNews ? newsHtml(site) : homeHtml(site);
+  const slug = currentSlug();
+  if (!slug) {
+    applyMeta(site, null);
+    root.innerHTML = homeHtml(site);
+    return;
+  }
+  const page = site.pages[slug];
+  if (!page) {
+    applyMeta(site, { title: "Not found" });
+    root.innerHTML = missingHtml(site, slug);
+    return;
+  }
+  applyMeta(site, page);
+  root.innerHTML = page.layout === "posts" ? postsHtml(site, page) : articleHtml(site, page);
 }
+
+function isInternalPath(url) {
+  return url.origin === location.origin && !url.pathname.split("/").pop().includes(".");
+}
+
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("a");
+  if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  if (link.target && link.target !== "_self") return;
+  let url;
+  try {
+    url = new URL(link.href, location.origin);
+  } catch {
+    return;
+  }
+  if (!isInternalPath(url)) return;
+  if (url.pathname === location.pathname && url.hash) return;
+  event.preventDefault();
+  history.pushState({}, "", url.pathname + url.search + url.hash);
+  render();
+  if (url.hash) {
+    document.getElementById(url.hash.slice(1))?.scrollIntoView();
+  } else {
+    window.scrollTo(0, 0);
+  }
+});
+
+window.addEventListener("popstate", render);
 
 render();
 

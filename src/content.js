@@ -5,8 +5,13 @@ import navSrc from "../content/nav.md?raw";
 import heroSrc from "../content/hero.md?raw";
 import featuresSrc from "../content/features.md?raw";
 import supportSrc from "../content/support.md?raw";
-import newsSrc from "../content/news.md?raw";
 import heroCodeSrc from "../content/hero-code.md?raw";
+
+const pageFiles = import.meta.glob("../content/pages/*.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -36,6 +41,38 @@ function firstHeadingAndRest(block) {
   const heading = lines[0].replace(/^#+\s+/, "");
   const rest = lines.slice(1).join("\n").trim();
   return { heading, rest };
+}
+
+function parsePostItems(body) {
+  const items = [];
+  for (const line of body.split("\n")) {
+    const m = line.match(
+      /^-\s+(.+?)\s+—\s+\[([^\]]+)\]\(([^)]+)\)\s+—\s+(.+)$/,
+    );
+    if (m) {
+      items.push({ date: m[1], title: m[2], href: m[3], description: m[4] });
+    }
+  }
+  return items;
+}
+
+function loadPages() {
+  const pages = {};
+  for (const [path, raw] of Object.entries(pageFiles)) {
+    const file = path.split("/").pop().replace(/\.md$/, "");
+    const { data, body } = parseFrontmatter(raw);
+    const headingMatch = body.match(/^#\s+(.+)$/m);
+    const title = data.title || (headingMatch ? headingMatch[1].trim() : file);
+    const layout = data.layout || "page";
+    pages[file] = {
+      slug: file,
+      title,
+      layout,
+      html: md(body),
+      items: layout === "posts" ? parsePostItems(body) : [],
+    };
+  }
+  return pages;
 }
 
 export function loadSite() {
@@ -82,19 +119,6 @@ export function loadSite() {
     }
   }
 
-  const newsParsed = parseFrontmatter(newsSrc);
-  const newsTitleMatch = newsParsed.body.match(/^#\s+(.+)$/m);
-  const newsTitle = newsTitleMatch ? newsTitleMatch[1].trim() : "News";
-  const newsItems = [];
-  for (const line of newsParsed.body.split("\n")) {
-    const m = line.match(
-      /^-\s+(.+?)\s+—\s+\[([^\]]+)\]\(([^)]+)\)\s+—\s+(.+)$/,
-    );
-    if (m) {
-      newsItems.push({ date: m[1], title: m[2], href: m[3], description: m[4] });
-    }
-  }
-
   const codeMatch = heroCodeSrc.match(/```(?:\w+)?\n([\s\S]*?)```/);
   const code = codeMatch ? codeMatch[1].replace(/\n$/, "") : heroCodeSrc.trim();
 
@@ -111,8 +135,7 @@ export function loadSite() {
       columns: footerColumns,
       copyright: footerParsed.data.copyright || "",
     },
-    newsTitle,
-    newsItems,
+    pages: loadPages(),
     code,
   };
 }
