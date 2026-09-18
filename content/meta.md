@@ -1,5 +1,5 @@
 ---
 title: LightML
-description: A post-modern functional language.
+description: The Language For Languages.
 themeColor: "#B13224"
 ---
