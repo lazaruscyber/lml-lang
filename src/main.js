@@ -1,6 +1,22 @@
 import "./style.css";
 import { loadSite, md } from "./content.js";
 
+function withBase(href) {
+  if (!href || href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:") || href.startsWith("#") || href.startsWith("//")) {
+    return href;
+  }
+  if (!href.startsWith("/")) return href;
+  const base = import.meta.env.BASE_URL;
+  if (href === "/") return base;
+  return `${base.replace(/\/$/, "")}${href}`;
+}
+
+function rebaseHrefs(html) {
+  return html.replace(/href="(\/[^"]*)"/g, (_full, href) => `href="${withBase(href)}"`);
+}
+
+const asset = (path) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}${path}`;
+
 const KEYWORDS = /^(open|let|mutable|print)$/;
 
 function escapeHtml(s) {
@@ -58,11 +74,11 @@ function highlightCode(src) {
 }
 
 function navHtml(site) {
-  const links = site.navLinks.map((l) => `<a href="${l.href}">${l.label}</a>`).join("");
+  const links = site.navLinks.map((l) => `<a href="${withBase(l.href)}">${l.label}</a>`).join("");
   return `
     <nav>
-      <a href="/" style="display: flex; align-items: center;">
-        <img src="/logo.png?v=3" alt="Logo" height="64" style="margin: 0" />
+      <a href="${withBase("/")}" style="display: flex; align-items: center;">
+        <img src="${asset("/logo.png?v=3")}" alt="Logo" height="64" style="margin: 0" />
       </a>
       <div style="flex: 1"></div>
       <menu style="display: flex; flex-wrap: wrap;">
@@ -88,7 +104,7 @@ function footerHtml(site) {
         <div class="site-footer-col">
           <h3>${col.title}</h3>
           <ul>
-            ${col.links.map((l) => `<li><a href="${l.href}">${l.label}</a></li>`).join("")}
+            ${col.links.map((l) => `<li><a href="${withBase(l.href)}">${l.label}</a></li>`).join("")}
           </ul>
         </div>
       `,
@@ -100,10 +116,10 @@ function footerHtml(site) {
       <div class="site-footer-inner">
         <div class="site-footer-top">
           <div class="site-footer-brand">
-            <a href="/" class="site-footer-logo">
-              <img src="/logo.png?v=3" alt="${f.brand || "Logo"}" height="40" />
+            <a href="${withBase("/")}" class="site-footer-logo">
+              <img src="${asset("/logo.png?v=3")}" alt="${f.brand || "Logo"}" height="40" />
             </a>
-            ${f.blurbHtml}
+            ${rebaseHrefs(f.blurbHtml)}
           </div>
           <div class="site-footer-cols">
             ${columns}
@@ -122,8 +138,8 @@ function homeHtml(site) {
     .map(
       (f) => `
         <div class="selling-point">
-          <h2>${f.titleHtml}</h2>
-          ${f.bodyHtml}
+          <h2>${rebaseHrefs(f.titleHtml)}</h2>
+          ${rebaseHrefs(f.bodyHtml)}
         </div>
       `,
     )
@@ -136,7 +152,7 @@ function homeHtml(site) {
       <h2 class="subtitle">${md(site.subtitle).replace(/^<p>|<\/p>\n?$/g, "")}</h2>
       ${heroCodeHtml(site.code)}
       <div class="action">
-        ${site.ctas.map((c) => `<a href="${c.href}">${c.label}</a>`).join("")}
+        ${site.ctas.map((c) => `<a href="${withBase(c.href)}">${c.label}</a>`).join("")}
       </div>
       <hr/>
       <section class="content">
@@ -161,7 +177,7 @@ function postsHtml(site, page) {
             </div>
             <div class="matter">
               <h4 class="title small">
-                <a href="${item.href}">${item.title}</a>
+                <a href="${withBase(item.href)}">${item.title}</a>
               </h4>
               <span class="description">${item.description}</span>
             </div>
@@ -191,7 +207,7 @@ function articleHtml(site, page) {
     <div class="page">
     ${navHtml(site)}
     <article class="page-body">
-      ${page.html}
+      ${rebaseHrefs(page.html)}
     </article>
     </div>
     ${footerHtml(site)}
@@ -212,9 +228,11 @@ function missingHtml(site, slug) {
 }
 
 function currentSlug() {
-  const path = location.pathname.replace(/\.html$/, "").replace(/\/+$/, "");
-  if (!path || path === "/") return "";
-  return path.replace(/^\//, "");
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  let path = location.pathname.replace(/\.html$/, "").replace(/\/+$/, "");
+  if (base && path.startsWith(base)) path = path.slice(base.length);
+  path = path.replace(/^\//, "");
+  return path;
 }
 
 function applyMeta(site, page) {
