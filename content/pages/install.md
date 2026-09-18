@@ -2,14 +2,9 @@
 title: Install
 ---
 
-# Install
-
-Install LightML and get a compiler on your machine.
-
 ## Download
 
 Get the latest release and follow the steps for your system.
 
-## Next
+[Download 1.0](https://github.com/lazaruscyber/lml-lang)
 
-See the [documentation](https://docs.helix-editor.com) after install.
