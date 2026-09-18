@@ -17,7 +17,7 @@ function rebaseHrefs(html) {
 
 const asset = (path) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}${path}`;
 
-const KEYWORDS = /^(open|let|mutable|print|type|of|rec|match|with|fun|if|then|else)$/;
+const KEYWORDS = /^(open|let|mutable|mut|print|of|void|while|if|then|else|do|match|for|in)$/;
 
 function escapeHtml(s) {
   return s

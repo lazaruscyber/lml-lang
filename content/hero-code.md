@@ -1,28 +1,62 @@
 ```lightml
 open System
 
-type Expr =
-  | Num of int
-  | Var of string
-  | Add of Expr * Expr
-  | Mul of Expr * Expr
-  | Let of string * Expr * Expr
+let source = "let n = 42 + x"
+let mutable i = 0
+let mutable kind = ""
+let mutable text = ""
 
-let rec eval env expr =
-  match expr with
-  | Num n -> n
-  | Var x -> env x
-  | Add (l, r) -> eval env l + eval env r
-  | Mul (l, r) -> eval env l * eval env r
-  | Let (name, value, body) ->
-      let n = eval env value
-      eval (fun y -> if y = name then n else env y) body
+skipSpace of void() {} =
+    while { i < source.Length } =
+        if { source[i] = ' ' } =
+            | then do
+                mut i <- i + 1
+            | else do
+                mut text <- text
 
-let program =
-  Let ("x", Num 3,
-    Let ("y", Add (Var "x", Num 4),
-      Mul (Var "y", Add (Var "x", Num 1))))
+readNumber of void() {} =
+    mut kind <- "Number"
+    mut text <- ""
+    while { i < source.Length } =
+        if { source[i] >= '0' } =
+            | then do
+                mut i <- i + 1
+            | else do
+                mut kind <- "Number"
 
-let mutable result = eval (fun _ -> 0) program
-print result
+readIdent of void() {} =
+    mut kind <- "Ident"
+    mut text <- ""
+    while { i < source.Length } =
+        if { source[i] >= 'a' } =
+            | then do
+                mut i <- i + 1
+            | else do
+                mut kind <- "Ident"
+
+readSymbol of void() {} =
+    mut kind <- "Symbol"
+    mut text <- ""
+    mut i <- i + 1
+
+lex of void() {} =
+    skipSpace
+    if { i < source.Length } =
+        | then do
+            match { source[i] } =
+                | '=' do
+                    readSymbol
+                | '+' do
+                    readSymbol
+                | '0' do
+                    readNumber
+                | 'l' do
+                    readIdent
+        | else do
+            mut kind <- "End"
+            mut text <- ""
+    print kind
+    print text
+
+lex
 ```
