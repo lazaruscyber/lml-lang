@@ -4,7 +4,7 @@ copyright: © 2026 LightML. All rights reserved.
 
 # LightML
 
-A functional language for production software. Built for teams that need safety, a small surface area, and tooling that stays stable.
+The programming language to create programming languages. Built for teams that need safety, a small surface area, and tooling that stays stable.
 
 ## Product
 
@@ -21,7 +21,7 @@ A functional language for production software. Built for teams that need safety,
 ## Community
 
 - [GitHub](https://github.com/helix-editor/helix)
-- [Matrix](https://matrix.to/#/#helix-community:matrix.org)
+- [Discord](https://discord.gg/lightml)
 - [OpenCollective](https://opencollective.com/helix-editor)
 
 ## Legal
