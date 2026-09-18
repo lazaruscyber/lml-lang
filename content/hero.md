@@ -1,4 +1,4 @@
-## The **most elegant** and **safe** programming language.
+## The **best tooling** for creating programming language.
 
 [Install now](/install)
 [Try LightML](#demo)

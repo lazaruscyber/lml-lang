@@ -1,6 +1,6 @@
 ## Confidently Scalable
 
-Write scalable and managable code that won't bite you back. LangML's [Time Machine](/docs.html/#time-machine) gurantees your code 10+ years ago will still run and integrate with modern updates.
+Write scalable and managable code that won't bite you back. LightML's [Time Machine](/docs.html/#time-machine) gurantees your code 10+ years ago will still run and integrate with modern updates.
 
 ## Stupidly Simple
 
