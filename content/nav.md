@@ -1,0 +1,5 @@
+[News](/news)
+[Documentation](https://docs.helix-editor.com)
+[GitHub](https://github.com/helix-editor/helix)
+[Matrix](https://matrix.to/#/#helix-community:matrix.org)
+[Download](https://docs.helix-editor.com/install.html)

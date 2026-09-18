@@ -1,0 +1,14 @@
+{
+  "name": "helix-editor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host --port 5173"
+  },
+  "devDependencies": {
+    "marked": "^15.0.12",
+    "vite": "^6.3.5"
+  }
+}
